@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>땅따먹기 배틀! (Land Rush Battle)</title>
+  <meta name="description" content="사용자와 컴퓨터가 펼치는 통통 튀고 신나는 실시간 땅따먹기 보드게임! 빈 칸을 차지해 가장 넓은 땅을 얻어 승리하세요.">
+  
+  <!-- Google Fonts: Outfit & Jua -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 배경 데코레이션 블러 버블 -->
+  <div class="bg-blobs" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="game-container">
+    <!-- 상단 헤더 & 컨트롤 바 -->
+    <header class="game-header">
+      <div class="logo-area">
+        <span class="logo-badge">MINI GAME</span>
+        <h1 class="logo-title">땅따먹기 <span class="highlight">BATTLE</span></h1>
+      </div>
+      
+      <div class="header-actions">
+        <!-- 사운드 토글 버튼 -->
+        <button id="soundToggleBtn" class="icon-btn" aria-label="사운드 켜기/끄기" title="효과음 켜기/끄기">
+          <span class="icon" id="soundIcon">🔊</span>
+        </button>
+        <!-- 통계 리셋 버튼 -->
+        <button id="statsBtn" class="icon-btn" aria-label="전적 통계 확인" title="전적 통계">
+          <span class="icon">🏆</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 게임 설정 & 컨트롤 툴바 -->
+    <section class="game-toolbar">
+      <div class="setting-group">
+        <label for="boardSizeSelect">맵 크기</label>
+        <div class="custom-select-wrapper">
+          <select id="boardSizeSelect">
+            <option value="4">4 × 4 (16칸)</option>
+            <option value="5" selected>5 × 5 (25칸)</option>
+            <option value="6">6 × 6 (36칸)</option>
+            <option value="7">7 × 7 (49칸)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <label for="difficultySelect">컴퓨터 난이도</label>
+        <div class="custom-select-wrapper">
+          <select id="difficultySelect">
+            <option value="random" selected>🎲 기본 (랜덤)</option>
+            <option value="smart">🤖 똑똑이 (영토 확장형)</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="restartBtn" class="btn-action primary-glow">
+        <span class="btn-icon">🔄</span> 새 게임
+      </button>
+    </section>
+
+    <!-- 대결 상태 및 스코어보드 -->
+    <section class="battle-dashboard">
+      <!-- 플레이어 (나) 카드 -->
+      <div class="score-card player-card" id="playerCard">
+        <div class="card-avatar user-avatar">
+          <span class="avatar-icon">👑</span>
+          <span class="active-pulse" aria-hidden="true"></span>
+        </div>
+        <div class="card-info">
+          <div class="badge-role">나 (YOU)</div>
+          <div class="card-name">영토 개척자</div>
+          <div class="card-count"><span id="playerScore">0</span> <small>칸</small></div>
+        </div>
+      </div>
+
+      <!-- 중앙 대결 인디케이터 (VS & 턴 알림) -->
+      <div class="vs-center">
+        <div class="turn-pill" id="turnIndicator">
+          <span class="turn-dot"></span>
+          <span id="turnText">내 차례!</span>
+        </div>
+        <div class="vs-text">VS</div>
+        <div class="remain-tag">
+          남은 빈 칸 <b id="remainingCount">25</b>
+        </div>
+      </div>
+
+      <!-- 컴퓨터 (AI) 카드 -->
+      <div class="score-card computer-card" id="computerCard">
+        <div class="card-avatar ai-avatar">
+          <span class="avatar-icon">🤖</span>
+          <span class="active-pulse" aria-hidden="true"></span>
+        </div>
+        <div class="card-info">
+          <div class="badge-role">컴퓨터 (AI)</div>
+          <div class="card-name">알고리즘 봇</div>
+          <div class="card-count"><span id="computerScore">0</span> <small>칸</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 영토 점유율 게이지 바 -->
+    <div class="territory-bar-wrapper">
+      <div class="territory-bar-track">
+        <div id="playerTerritoryBar" class="bar-fill player-fill" style="width: 0%;"></div>
+        <div id="computerTerritoryBar" class="bar-fill computer-fill" style="width: 0%;"></div>
+      </div>
+      <div class="territory-labels">
+        <span id="playerPercentage">나: 0%</span>
+        <span class="bar-vs">땅 점유율</span>
+        <span id="computerPercentage">컴퓨터: 0%</span>
+      </div>
+    </div>
+
+    <!-- 메인 게임 보드 격자판 -->
+    <main class="board-stage">
+      <div id="gameBoard" class="game-board grid-5x5">
+        <!-- 자바스크립트로 동적 칸 생성 -->
+      </div>
+    </main>
+
+    <!-- 하단 상태 메시지 및 안내 문구 -->
+    <footer class="game-footer">
+      <p id="gameStatusNotice" class="status-tip">
+        ✨ 비어 있는 네모 칸을 터치하거나 클릭하여 내 땅으로 만드세요!
+      </p>
+      
+      <!-- 전적 요약 바 -->
+      <div class="record-summary">
+        전적: <span id="recordWins">0</span>승 
+        <span id="recordDraws">0</span>무 
+        <span id="recordLosses">0</span>패
+      </div>
+    </footer>
+  </div>
+
+  <!-- 결과 알림 모달 -->
+  <div id="resultModal" class="modal-overlay hidden">
+    <div class="modal-content animate-pop">
+      <div id="modalBanner" class="modal-banner win-banner">
+        <span id="modalEmoji" class="modal-emoji">🎉</span>
+      </div>
+      <h2 id="modalTitle" class="modal-title">멋진 승리!</h2>
+      <p id="modalDesc" class="modal-desc">축하합니다! 컴퓨터를 꺾고 더 많은 땅을 차지했습니다!</p>
+      
+      <!-- 최종 점수 비교 -->
+      <div class="final-score-box">
+        <div class="score-item player-final">
+          <span class="final-label">나의 영토</span>
+          <span class="final-num" id="modalPlayerScore">15</span>
+        </div>
+        <div class="score-divider">:</div>
+        <div class="score-item computer-final">
+          <span class="final-label">컴퓨터 영토</span>
+          <span class="final-num" id="modalComputerScore">10</span>
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button id="modalRestartBtn" class="btn-action primary-glow modal-btn">
+          <span>🚀</span> 다시 대결하기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 전적 상세 모달 -->
+  <div id="statsModal" class="modal-overlay hidden">
+    <div class="modal-content animate-pop">
+      <div class="modal-header-simple">
+        <h3>🏆 플레이 전적</h3>
+        <button id="closeStatsBtn" class="close-btn" aria-label="닫기">&times;</button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box win-box">
+          <div class="stat-value" id="statsWinCount">0</div>
+          <div class="stat-label">승리</div>
+        </div>
+        <div class="stat-box draw-box">
+          <div class="stat-value" id="statsDrawCount">0</div>
+          <div class="stat-label">무승부</div>
+        </div>
+        <div class="stat-box loss-box">
+          <div class="stat-value" id="statsLossCount">0</div>
+          <div class="stat-label">패배</div>
+        </div>
+        <div class="stat-box rate-box">
+          <div class="stat-value" id="statsWinRate">0%</div>
+          <div class="stat-label">승률</div>
+        </div>
+      </div>
+      <div class="stats-actions">
+        <button id="resetStatsBtn" class="btn-secondary">전적 초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 승리 시 축하 폭죽 캔버스 -->
+  <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+  <script src="app.js"></script>
+</body>
+</html>
