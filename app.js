@@ -45,6 +45,12 @@
   const soundToggleBtn = document.getElementById('soundToggleBtn');
   const soundIcon = document.getElementById('soundIcon');
   const statsBtn = document.getElementById('statsBtn');
+  const helpBtn = document.getElementById('helpBtn');
+
+  // Intro Modal & Help
+  const introModal = document.getElementById('introModal');
+  const startGameBtn = document.getElementById('startGameBtn');
+  const closeIntroBtn = document.getElementById('closeIntroBtn');
 
   // Result Modal
   const resultModal = document.getElementById('resultModal');
@@ -232,6 +238,39 @@
       osc.start(now);
       osc.stop(now + 0.05);
     } catch (e) {}
+  }
+
+  // Play Game Start sound (energetic cheerful rising tone)
+  function playGameStartSound() {
+    if (!soundEnabled) return;
+    initAudioContext();
+    if (!audioCtx) return;
+
+    try {
+      const notes = [440, 554.37, 659.25, 880]; // A4, C#5, E5, A5
+      const now = audioCtx.currentTime;
+
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const startTime = now + idx * 0.07;
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(0.2, startTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.22);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(startTime);
+        osc.stop(startTime + 0.22);
+      });
+    } catch (e) {
+      console.warn('Audio playback error', e);
+    }
   }
 
   // --- Confetti Celebration Particles ---
@@ -711,6 +750,30 @@
     statsModal.classList.add('hidden');
   });
 
+  // Help Button (Reopen Intro & Rules)
+  if (helpBtn) {
+    helpBtn.addEventListener('click', () => {
+      playClickSound();
+      introModal.classList.remove('hidden');
+    });
+  }
+
+  // Intro Modal Start & Close Buttons
+  if (startGameBtn) {
+    startGameBtn.addEventListener('click', () => {
+      initAudioContext();
+      playGameStartSound();
+      introModal.classList.add('hidden');
+    });
+  }
+
+  if (closeIntroBtn) {
+    closeIntroBtn.addEventListener('click', () => {
+      playClickSound();
+      introModal.classList.add('hidden');
+    });
+  }
+
   resetStatsBtn.addEventListener('click', () => {
     if (confirm('전적 기록을 모두 초기화하시겠습니까?')) {
       stats = { wins: 0, draws: 0, losses: 0 };
@@ -719,18 +782,23 @@
   });
 
   // Close modals on clicking overlay backdrop
-  [resultModal, statsModal].forEach(modal => {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.classList.add('hidden');
-      }
-    });
+  [resultModal, statsModal, introModal].forEach(modal => {
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+        }
+      });
+    }
   });
 
-  // Keyboard shortcut: Space or 'R' to restart
+  // Keyboard shortcut: Escape to close modals, 'R' to restart
   window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      [resultModal, statsModal, introModal].forEach(m => m?.classList.add('hidden'));
+    }
     if (e.key === 'r' || e.key === 'R') {
-      if (resultModal.classList.contains('hidden') && statsModal.classList.contains('hidden')) {
+      if (resultModal.classList.contains('hidden') && statsModal.classList.contains('hidden') && introModal.classList.contains('hidden')) {
         initGame();
       }
     }

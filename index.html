@@ -34,6 +34,10 @@
         <button id="soundToggleBtn" class="icon-btn" aria-label="사운드 켜기/끄기" title="효과음 켜기/끄기">
           <span class="icon" id="soundIcon">🔊</span>
         </button>
+        <!-- 게임 도움말 & 규칙 인트로 버튼 -->
+        <button id="helpBtn" class="icon-btn" aria-label="게임 규칙 안내" title="게임 규칙">
+          <span class="icon">❓</span>
+        </button>
         <!-- 통계 리셋 버튼 -->
         <button id="statsBtn" class="icon-btn" aria-label="전적 통계 확인" title="전적 통계">
           <span class="icon">🏆</span>
@@ -144,6 +148,64 @@
         <span id="recordLosses">0</span>패
       </div>
     </footer>
+  </div>
+
+  <!-- 인트로 & 게임 규칙 모달 (최초 접속 시 표시) -->
+  <div id="introModal" class="modal-overlay">
+    <div class="modal-content intro-modal-content animate-pop">
+      <button id="closeIntroBtn" class="close-btn intro-close-btn" aria-label="닫기" title="닫기">&times;</button>
+      
+      <!-- 인트로 일러스트 배너 이미지 -->
+      <div class="intro-image-wrapper">
+        <img src="intro-banner.jpg" alt="땅따먹기 배틀 일러스트" class="intro-image">
+        <div class="intro-image-badge">
+          <span>🏰</span> <span>땅따먹기 BATTLE</span>
+        </div>
+      </div>
+
+      <!-- 인트로 타이틀 -->
+      <div class="intro-header">
+        <h2 class="intro-title">땅따먹기 <span class="highlight">BATTLE</span></h2>
+        <p class="intro-tagline">실시간으로 펼쳐지는 통통 튀는 영토 점령전!</p>
+      </div>
+
+      <!-- 게임 규칙 설명 -->
+      <div class="intro-rules-card">
+        <div class="rules-card-title">
+          <span class="rules-icon">📜</span> 게임 진행 및 규칙
+        </div>
+        <ul class="rules-list">
+          <li class="rule-item">
+            <span class="rule-num">1</span>
+            <div class="rule-text">
+              <strong>턴 방식 영토 점령</strong>
+              <p>나와 컴퓨터(AI)가 한 번씩 번갈아가며 비어 있는 격자 칸을 터치해 내 땅으로 만듭니다.</p>
+            </div>
+          </li>
+          <li class="rule-item">
+            <span class="rule-num">2</span>
+            <div class="rule-text">
+              <strong>최종 승리 조건</strong>
+              <p>모든 칸이 채워졌을 때 <b>더 많은 영토(칸 수)</b>를 차지한 쪽이 승리합니다!</p>
+            </div>
+          </li>
+          <li class="rule-item">
+            <span class="rule-num">3</span>
+            <div class="rule-text">
+              <strong>전략 팁 &amp; 설정 조절</strong>
+              <p>상단 메뉴에서 <b>4×4 ~ 7×7 맵 크기</b>와 <b>스마트 AI 난이도</b>를 조절할 수 있습니다.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 게임 시작 버튼 -->
+      <div class="intro-actions">
+        <button id="startGameBtn" class="btn-action primary-glow btn-start-game">
+          <span class="btn-icon">🎮</span> 게임 시작하기!
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- 결과 알림 모달 -->
